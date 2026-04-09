@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 
 typedef struct node {
@@ -13,6 +12,10 @@ typedef struct node {
     struct node *l;
     struct node *r;
 }   node;
+
+node    *parse_multiplication(char **s);
+node    *parse_addition(char **s);
+node    *parse_group_or_nbr(char **s);
 
 
 node    *new_node(node n)
@@ -41,7 +44,7 @@ void    unexpected(char c)
     if (c)
         printf("Unexpected token '%c'\n", c);
     else
-        printf("Unexpected end of file\n");
+        printf("Unexpected end of input\n");
 }
 
 int accept(char **s, char c)
@@ -62,14 +65,10 @@ int expect(char **s, char c)
     return (0);
 }
 
-node    *parse_group_or_number(char **s);
-node    *parse_addition(char **s);
-node    *parse_mult(char **s);
-
-node    *parse_group_or_number(char **s)
+node    *parse_group_or_nbr(char **s)
 {
-    node    *res;
-    node    tmp;
+    node *res;
+    node tmp;
 
     if (**s == '(')
     {
@@ -77,8 +76,8 @@ node    *parse_group_or_number(char **s)
         res = parse_addition(s);
         if (!res || **s != ')')
         {
-            destroy_tree(res);
             unexpected(**s);
+            destroy_tree(res);
             return NULL;
         }
         (*s)++;
@@ -96,45 +95,44 @@ node    *parse_group_or_number(char **s)
     return NULL;
 }
 
-node    *parse_mult(char **s)
+node    *parse_multiplication(char **s)
 {
-    node *right;
     node *left;
+    node *right;
     node tmp;
 
-    left = parse_group_or_number(s);
+    left = parse_group_or_nbr(s);
     if (!left)
         return NULL;
-    while(**s == '*')
+    while (**s == '*')
     {
         (*s)++;
-        right = parse_group_or_number(s);
+        right = parse_group_or_nbr(s);
         if (!right)
         {
             destroy_tree(left);
             return NULL;
         }
         tmp.type = MULTI;
-        tmp.r = right;
         tmp.l = left;
+        tmp.r = right;
         left = new_node(tmp);
     }
     return left;
 }
-
 node    *parse_addition(char **s)
 {
     node *right;
     node *left;
     node tmp;
 
-    left = parse_mult(s);
+    left = parse_multiplication(s);
     if (!left)
         return NULL;
     while (**s == '+')
     {
         (*s)++;
-        right = parse_mult(s);
+        right = parse_multiplication(s);
         if (!right)
         {
             destroy_tree(left);
@@ -163,21 +161,19 @@ int eval_tree(node *tree)
 
 int main(int argc, char **argv)
 {
-    char *p;
-
+    char *p = argv[1];
     if (argc != 2)
         return (1);
-    p = argv[1];
     node *tree = parse_addition(&p);
     if (!tree)
         return (1);
-    printf("%d\n", eval_tree(tree));
     if (*p != '\0')
     {
-        unexpected('\0');
         destroy_tree(tree);
+        unexpected('\0');
         return 1;
     }
+    printf("%d\n", eval_tree(tree));
     destroy_tree(tree);
     return 0;
 }

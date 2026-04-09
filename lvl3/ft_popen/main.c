@@ -13,7 +13,7 @@
 } */
 
 
-/* int	main() {
+int	main() {
 	int	fd = ft_popen("ls", (char *const []){"ls", NULL}, 'r');
 	dup2(fd, 0);
 	fd = ft_popen("grep", (char *const []){"grep", "c", NULL}, 'r');
@@ -32,7 +32,7 @@
     fd = ft_popen("ls", (char *const []){"ls", NULL}, 'r');
     fd = ft_popen("ls", (char *const []){"ls", NULL}, 'r');
     fd = ft_popen("ls", (char *const []){"ls", NULL}, 'r');
-    fd = ft_popen("wc", (char *const []){"wc", NULL}, 'r');
+    fd = ft_popen("grep", (char *const []){"grep","c", NULL}, 'r');
     fd = ft_popen("ls", (char *const []){"ls", NULL}, 'r');
     fd = ft_popen("ls", (char *const []){"ls", NULL}, 'r');
     fd = ft_popen("ls", (char *const []){"ls", NULL}, 'r');
@@ -50,7 +50,7 @@
 	while ((line = get_next_line(fd)))
 		printf("%s", line);
     close(fd);
-} */
+}
 
 /* #include "test.h"
 #include <stdio.h>
@@ -100,7 +100,7 @@ int main(void)
     printf("\nAll tests completed.\n");
     return (0);
 } */
-
+/* 
 #include "test.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -206,4 +206,4 @@ int main(void)
     printf("Tests failed: %d\n\n", failed);
 
     return (failed > 0 ? 1 : 0);
-}
+} */

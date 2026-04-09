@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+
 typedef struct node {
     enum {
         ADD,
@@ -12,6 +13,10 @@ typedef struct node {
     struct node *l;
     struct node *r;
 }   node;
+
+node    *parse_group_or_nbr(char **s);
+node    *parse_multiplication(char **s);
+node    *parse_addition(char **s);
 
 node    *new_node(node n)
 {
@@ -60,16 +65,10 @@ int expect(char **s, char c)
     return (0);
 }
 
-
-///     
-node    *parse_addition(char **s);
-node    *group_or_number_parsing(char **s);
-node    *parse_multiplication(char **s);
-
-node    *group_or_number_parsing(char **s)
+node    *parse_group_or_nbr(char **s)
 {
-    node    *res;
-    node    tmp;
+    node *res;
+    node tmp;
 
     if (**s == '(')
     {
@@ -102,21 +101,21 @@ node    *parse_multiplication(char **s)
     node *right;
     node tmp;
 
-    left = group_or_number_parsing(s);
+    left = parse_group_or_nbr(s);
     if (!left)
         return NULL;
     while (**s == '*')
     {
         (*s)++;
-        right = group_or_number_parsing(s);
+        right = parse_group_or_nbr(s);
         if (!right)
         {
             destroy_tree(left);
             return NULL;
         }
         tmp.type = MULTI;
-        tmp.r = right;
         tmp.l = left;
+        tmp.r = right;
         left = new_node(tmp);
     }
     return left;
@@ -141,12 +140,11 @@ node    *parse_addition(char **s)
             return NULL;
         }
         tmp.type = ADD;
-        tmp.r = right;
         tmp.l = left;
+        tmp.r = right;
         left = new_node(tmp);
     }
     return left;
-    
 }
 
 int eval_tree(node *tree)
@@ -166,9 +164,17 @@ int main(int argc, char **argv)
 {
     if (argc != 2)
         return (1);
-    node *tree = parse_addition(&argv[1]);
+    char *p = argv[1];
+    node *tree = parse_addition(&p);
     if (!tree)
         return (1);
+    if (*p != '\0')
+    {
+        destroy_tree(tree);
+        unexpected('\0');
+        return 1;
+    }
     printf("%d\n", eval_tree(tree));
     destroy_tree(tree);
+    return 0;
 }

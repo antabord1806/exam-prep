@@ -170,9 +170,9 @@ int main(int argc, char **argv)
     node *tree = parse_addition(&p);
     if (!tree)
         return (1);
-        if (*p != '\0')
-        {
-            unexpected('\0');
+    if (*p != '\0')
+    {
+        unexpected('\0');
         destroy_tree(tree);
         return 1;
     }
