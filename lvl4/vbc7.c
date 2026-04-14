@@ -13,9 +13,6 @@ typedef struct node {
     struct node *r;
 }   node;
 
-node    *parse_addition(char **s);
-node    *parse_multiplication(char **s);
-node    *parse_group_or_nbr(char **s);
 
 node    *new_node(node n)
 {
@@ -64,7 +61,11 @@ int expect(char **s, char c)
     return (0);
 }
 
-node    *parse_group_or_nbr(char **s){
+node    *parse_group_or_parentesis(char **s);
+node    *parse_multiplication(char **s);
+node    *parse_addition(char **s);
+
+node    *parse_group_or_parentesis(char **s){
     node *res;
     node tmp;
 
@@ -72,8 +73,6 @@ node    *parse_group_or_nbr(char **s){
     {
         (*s)++;
         res = parse_addition(s);
-        if (!res)
-            return NULL;
         if (**s != ')')
         {
             destroy_tree(res);
@@ -86,43 +85,47 @@ node    *parse_group_or_nbr(char **s){
         (*s)++;
         return res;
     }
-    if (isdigit(**s)){
+    if (isdigit(**s))
+    {
         tmp.type = VAL;
         tmp.val = **s - '0';
         res = new_node(tmp);
         (*s)++;
         return res;
     }
-    unexpected(')');
+    unexpected('(');
     return NULL;
 }
 
-node    *parse_multiplication(char **s){
+
+node    *parse_multiplication(char **s)
+{
     node *left;
     node *right;
     node tmp;
 
-    left = parse_group_or_nbr(s);
+    left = parse_group_or_parentesis(s);
     if (!left)
         return NULL;
     while (**s == '*')
     {
         (*s)++;
-        right = parse_group_or_nbr(s);
+        right = parse_group_or_parentesis(s);
         if (!right)
         {
             destroy_tree(left);
             return NULL;
         }
         tmp.type = MULTI;
-        tmp.r = right;
         tmp.l = left;
+        tmp.r = right;
         left = new_node(tmp);
     }
     return left;
 }
 
-node    *parse_addition(char **s){
+node    *parse_addition(char **s)
+{
     node *left;
     node *right;
     node tmp;
@@ -140,8 +143,8 @@ node    *parse_addition(char **s){
             return NULL;
         }
         tmp.type = ADD;
-        tmp.r = right;
         tmp.l = left;
+        tmp.r = right;
         left = new_node(tmp);
     }
     return left;
@@ -161,19 +164,19 @@ int eval_tree(node *tree)
 }
 
 int checking_parentesis(char **s){
-    int cnt = 0;
-    
-    while(**s)
+    int count = 0;
+
+    while (**s)
     {
         if (**s == '(')
-            cnt++;
+            count++;
         if (**s == ')')
-            cnt--;
+            count--;
         (*s)++;
     }
-    if (cnt > 0)
+    if (count > 0)
         unexpected('(');
-    if (cnt < 0)
+    if (count < 0)
         unexpected(')');
     else
         return 0;
